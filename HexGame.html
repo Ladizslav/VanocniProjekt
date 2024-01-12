@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Game</title>
+    <style>
+       body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+        }
+
+        #colorContainers {
+            display: flex;
+        }
+
+        .color-container {
+            width: 169px;
+            height: 169px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        #colorName {
+            font-size: 30px;
+            margin-top: 20px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .navigation {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+        }
+
+        .navigation a {
+            padding: 10px 12px;
+            text-decoration: none;
+            font-size: 20px;
+            background-color: cornflowerblue;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .navigation a:hover {
+            background-color: deepskyblue;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <a href="MainMenu.html">Main Menu</a>
+    </div>
+    <div id="colorName"></div>
+    <div id="colorContainers"></div>
+    <button class="button" onclick="setDifficulty(3)">Easy</button>
+    <button class="button" onclick="setDifficulty(5)">Medium</button>
+    <button class="button" onclick="setDifficulty(10)">Hard</button>
+    <button class="button" onclick="replay()">Replay</button>
+    <script>
+        var colorContainers = document.getElementById('colorContainers');
+        var targetColor;
+        var difficulty = 3;
+    
+        function setDifficulty(newDifficulty) {
+            difficulty = newDifficulty;
+            replay();
+        }
+    
+        function getRandomIndex(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        function getRandomHexColor() {
+            return '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
+        }
+
+        function setRandomColors() {
+            colorContainers.innerHTML = '';
+
+            var colorArray = [];
+            for (var i = 0; i < difficulty; i++) {
+                var color = getRandomHexColor();
+                colorArray.push(color);
+            }
+
+            var correctColorIndex = getRandomIndex(difficulty);
+
+           colorArray.forEach(function (color, index) {
+                var container = document.createElement('div');
+                container.className = 'color-container';
+                container.onclick = function () {
+                guess(this);
+            };
+
+            container.style.backgroundColor = color;
+            colorContainers.appendChild(container);
+
+            if (index === correctColorIndex) {
+                targetColor = color;
+            }
+        });
+
+        document.getElementById("colorName").innerHTML = `${targetColor}`;
+        }
+    
+        function guess(clickedContainer) {
+            var clickedColor = rgbToHex(clickedContainer.style.backgroundColor);
+    
+            if (clickedColor === targetColor) {
+                document.getElementById("colorName").innerHTML = "CORRECT !!";
+            } else {
+                document.getElementById("colorName").innerHTML = `WRONG !!`;
+            }
+    
+            colorContainers.childNodes.forEach(function(container) {
+                container.onclick = null;
+            });
+        }
+    
+        function rgbToHex(rgb) {
+            var hex = rgb.match(/\d+/g)
+                .map(function(part) {
+                    return ('0' + parseInt(part).toString(16)).slice(-2);
+                })
+                .join('');
+    
+            return '#' + hex;
+        }
+    
+        function replay() {
+            colorContainers.childNodes.forEach(function(container) {
+                container.onclick = function() {
+                    guess(this);
+                };
+            });
+    
+            setRandomColors();
+        }
+    
+        setRandomColors();
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+</head>
+<style>
+    body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+    .navigation {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+        }
+
+        .navigation a {
+            padding: 10px 12px;
+            text-decoration: none;
+            font-size: 20px;
+            background-color: cornflowerblue;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .navigation a:hover {
+            background-color: deepskyblue;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(20, 33px);
+            gap: 5px;
+        }
+        .cell {
+            height: 30px;
+            border: 1.5px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        #winner-message {
+            margin-top: 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+</style>
+<body>
+    <div class="navigation">
+        <a href="MainMenu.html">Main Menu</a>
+    </div>
+    <div id="winner-message"></div>
+    <div id="board"></div>
+    <button class="button" onclick="restartGame()">Restart</button>
+    
+</body>
+<script>
+    const boardSize = 20;
+    const winLength = 5;
+    let currentPlayer = 'X';
+    let board = Array.from({ length: boardSize }, () => Array(boardSize).fill(''));
+    const boardElement = document.getElementById('board');
+    const winnerMessageElement = document.getElementById('winner-message');
+
+    function initializeBoard() {
+        boardElement.innerHTML = '';
+        for (let row = 0; row < boardSize; row++) {
+            for (let col = 0; col < boardSize; col++) {
+                const cell = createCell(row, col);
+                boardElement.appendChild(cell);
+            }
+        }
+    }
+
+    function createCell(row, col) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.row = row.toString();
+        cell.dataset.col = col.toString();
+        cell.addEventListener('click', handleCellClick);
+        return cell;
+    }
+
+    function handleCellClick(event) {
+        const row = parseInt(event.target.dataset.row);
+        const col = parseInt(event.target.dataset.col);
+
+        if (board[row][col] === '' && !checkForWinner()) {
+            board[row][col] = currentPlayer;
+            event.target.innerText = currentPlayer;
+            if (checkForWinner()) {
+                displayWinnerMessage();
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            }
+        }
+    }
+
+    function checkForWinner() {
+        for (let row = 0; row < boardSize; row++) {
+            for (let col = 0; col <= boardSize - winLength; col++) {
+                if (checkLine(...board[row].slice(col, col + winLength))) {
+                    return true;
+                }
+            }
+        }
+
+        for (let col = 0; col < boardSize; col++) {
+            for (let row = 0; row <= boardSize - winLength; row++) {
+                if (checkLine(...Array.from({ length: winLength }, (_, i) => board[row + i][col]))) {
+                    return true;
+                }
+            }
+        }
+
+        for (let row = 0; row <= boardSize - winLength; row++) {
+            for (let col = 0; col <= boardSize - winLength; col++) {
+                if (checkLine(...Array.from({ length: winLength }, (_, i) => board[row + i][col + i])) ||
+                    checkLine(...Array.from({ length: winLength }, (_, i) => board[row + winLength - 1 - i][col + i]))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    function checkLine(...cells) {
+        return cells.every(cell => cell !== '' && cell === cells[0]);
+    }
+
+    function displayWinnerMessage() {
+        winnerMessageElement.innerText = `Player ${currentPlayer} wins!`;
+    }
+
+    function restartGame() {
+        winnerMessageElement.innerText = '';
+        board = Array.from({ length: boardSize }, () => Array(boardSize).fill(''));
+        currentPlayer = 'X';
+
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.innerText = '';
+        });
+    }
+
+    initializeBoard();
+</script>
+
+</body>
+</html>
